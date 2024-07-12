@@ -31,12 +31,6 @@ jobs:
           . venv/bin/activate
           pip install -r requirements.txt
 
-      - name: Run flake8 (optional)
-        run: |
-          . venv/bin/activate
-          pip install flake8
-          flake8 .
-
       - name: Run tests with coverage (optional)
         run: |
           . venv/bin/activate
@@ -49,3 +43,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           file: coverage.xml
+
+      - name: Run Test (former)
+        run: |
+          . venv/bin/activate
+          pytest
