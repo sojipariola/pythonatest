@@ -1,24 +1,51 @@
 name: Python application
 
-on: [push, pull_request]
+on: 
+  - push
+  - pull_request
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - name: Install Dependencies
-        run:
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
           python -m venv venv
           . venv/bin/activate
           pip install -r requirements.txt
-      - name: Run Tests
+
+      - name: Run flake8 (optional)
         run: |
           . venv/bin/activate
-          pytest
+          pip install flake8
+          flake8 .
 
+      - name: Run tests with coverage (optional)
+        run: |
+          . venv/bin/activate
+          pip install coverage
+          coverage run -m pytest
+          coverage report
+          coverage xml
+
+      - name: Upload coverage to Codecov (optional)
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage.xml
